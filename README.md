@@ -1,4 +1,5 @@
-# Setup
+# Test suite showcase based on Playwright
+## Setup
 
 1. Install packages
 ```
@@ -10,7 +11,7 @@ npx playwright install
 ```
 3. Create a copy of ```.env.template``` and rename it to ```.env```
 
-# Running the Example Test in UI Mode
+## Running the Example Test in UI Mode
 
 Run your tests with UI Mode for a better developer experience with time travel debugging, watch mode and more.
 ```
