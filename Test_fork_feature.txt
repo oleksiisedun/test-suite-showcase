@@ -1,0 +1,16 @@
+A fork is a new repository that shares code and visibility settings with the original “upstream” repository. Forks are often used to iterate on ideas or changes before they are proposed back to the upstream repository, such as in open source projects or when a user does not have write access to the upstream repository. For more information, see "Working with forks."
+
+Propose changes to someone else's project
+For example, you can use forks to propose changes related to fixing a bug. Rather than logging an issue for a bug you have found, you can:
+
+Fork the repository.
+Make the fix.
+Submit a pull request to the project owner.
+Use someone else's project as a starting point for your own idea.
+Open source software is based on the idea that by sharing code, we can make better, more reliable software. For more information, see the "About the Open Source Initiative" on the Open Source Initiative.
+
+For more information about applying open source principles to your organization's development work on GitHub.com, see GitHub's white paper "An introduction to innersource."
+
+When creating your public repository from a fork of someone's project, make sure to include a license file that determines how you want your project to be shared with others. For more information, see "Choose an open source license" at choosealicense.com.
+
+For more information on open source, specifically how to create and grow an open source project, we've created Open Source Guides that will help you foster a healthy open source community by recommending best practices for creating and maintaining repositories for your open source project. You can also take a free GitHub Skills course on maintaining open source communities.
