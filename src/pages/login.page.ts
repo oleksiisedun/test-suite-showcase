@@ -1,10 +1,10 @@
 import { expect } from '@playwright/test';
-import { BaseLocators } from "./base/locators";
-import { Navigation } from "../navigation";
-import { User } from "../users";
-import { API } from '../helpers/api';
+import { User } from "../helpers/users";
+import { regexes } from '../helpers/api';
+import { Base } from './base';
+import { Navigatable } from './navigatable';
 
-export class LoginPage extends BaseLocators implements Navigation {
+export class LoginPage extends Base implements Navigatable {
   readonly emailField = this.getByType('email');
   readonly passwordField = this.getByType('password');
   readonly loginButton = this.locator('button').getByText('Log in');
@@ -14,15 +14,13 @@ export class LoginPage extends BaseLocators implements Navigation {
     return 'login';
   }
 
-  async waitForLoadState() {
-    await this.page.waitForLoadState('networkidle');
-  }
+  async waitForLoadState() {}
 
   async login(user: User) {
     await this.emailField.fill(user.email);
     await this.passwordField.fill(user.password);
     const [res] = await Promise.all([
-      this.page.waitForResponse(API.regex.signIn),
+      this.page.waitForResponse(regexes.signIn),
       this.loginButton.click()
     ]);
 

@@ -1,11 +1,12 @@
-import { test } from '@playwright/test';
-
-export const getTestsStepsProxy = <T extends Record<string, (...params: any[]) => Promise<any>>>(steps: T): T =>
-  new Proxy(steps, {
-    get: (target, prop: string) => {
-      if (prop in target) {
-        return async (...params: unknown[]) => test.step(prop, async () => target[prop](...params));
-      }
-      throw new Error(`Step "${prop}" is not defined`);
-    },
+export function applyMixins(derivedCtor: any, constructors: any[]) {
+  constructors.forEach((baseCtor) => {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+      Object.defineProperty(
+        derivedCtor.prototype,
+        name,
+        Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
+          Object.create(null)
+      );
+    });
   });
+}

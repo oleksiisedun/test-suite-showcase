@@ -1,10 +1,12 @@
-import { getTestsStepsProxy } from "../helpers/utils";
-import { loginSteps } from "./login";
-import { sidebarSteps } from "./sidebar";
-import { driversSteps } from "./drivers";
+import { applyMixins } from "../helpers/utils";
+import { BaseSteps } from "./base-steps";
+import { LoginSteps } from "./login";
+import { DriversSteps } from "./drivers";
 
-export const steps = getTestsStepsProxy({
-  ...loginSteps,
-  ...sidebarSteps,
-  ...driversSteps
-});
+class Steps extends BaseSteps {};
+
+interface Steps extends LoginSteps, DriversSteps {};
+
+applyMixins(Steps, [LoginSteps, DriversSteps]);
+
+export { Steps };

@@ -1,19 +1,10 @@
-import { BasePage } from "./base";
-import { Navigation } from "../navigation";
-import { API } from "../helpers/api";
 import { Locator } from "@playwright/test";
+import { BaseViewPage } from "./base-view.page";
 
-export class DriversPage extends BasePage implements Navigation {
+export class DriversPage extends BaseViewPage{
+  readonly pageURL = 'users/drivers';
   readonly table = this.locator('tbody');
   readonly tableRows = this.table.locator('tr');
-
-  url() {
-    return 'users/drivers';
-  }
-
-  async waitForLoadState() {
-    await this.page.waitForResponse(API.regex.drivers);
-  }
 
   getTableRow(rowNumber: number): Locator {
     return this.tableRows.nth(rowNumber);

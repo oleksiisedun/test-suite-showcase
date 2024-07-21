@@ -1,16 +1,12 @@
 import { expect } from "@playwright/test";
-import { goto } from "../navigation";
-import { LoginPage } from "../pages/login.page";
-import { users } from "../users";
+import { BaseSteps } from "./base-steps";
+import { step } from "../helpers/step";
 
-export const loginSteps = {
-  'Login test user': async (loginPage: LoginPage) => {
-    await goto(loginPage);
-    await loginPage.login(users.testUser);
-  },
-  'Verify login page elements': async (loginPage: LoginPage) => {
-    await expect(loginPage.emailField).toBeVisible();
-    await expect(loginPage.passwordField).toBeVisible();
-    await expect(loginPage.loginButton).toBeVisible();
+export class LoginSteps extends BaseSteps {
+  @step('Check login page')
+  async checkLoginPage() {
+    await expect(this.app.loginPage.emailField).toBeVisible();
+    await expect(this.app.loginPage.passwordField).toBeVisible();
+    await expect(this.app.loginPage.loginButton).toBeVisible();
   }
 }

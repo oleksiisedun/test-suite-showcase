@@ -2,13 +2,13 @@ import { Page } from '@playwright/test';
 
 export type GotoOptions = Parameters<Page['goto']>[1];
 
-export interface Navigation {
+export interface Navigatable {
   page: Page;
   url(urlParams?: Record<string, any>): string;
   waitForLoadState(): Promise<void>;
 }
 
-export async function goto<T extends Navigation>(
+export async function goto<T extends Navigatable>(
   pageObject: T,
   urlParams?: Parameters<T['url']>[0],
   options?: GotoOptions

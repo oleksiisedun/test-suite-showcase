@@ -1,19 +1,23 @@
 import { expect } from "@playwright/test";
-import { goto } from "../navigation";
-import { DriversPage } from "../pages/drivers.page";
+import { goto } from "../pages/navigatable";
+import { BaseSteps } from "./base-steps";
+import { step } from "../helpers/step";
 
-export const driversSteps = {
-  'Open drivers page': async (driversPage: DriversPage) => {
-    await Promise.all([driversPage.waitForLoadState(), goto(driversPage)]);
-  },
-  'Verify table is filled with data': async (driversPage: DriversPage) => {
-    const rowsCount = await driversPage.tableRows.count();
+export class DriversSteps extends BaseSteps {
+  @step('Open drivers page')
+  async openDriversPage() {
+    await Promise.all([this.app.driversPage.waitForLoadState(), goto(this.app.driversPage)]);
+  }
+
+  @step('Check table is filled with data')
+  async checkTableIsFilledWithData() {
+    const rowsCount = await this.app.driversPage.tableRows.count();
 
     for (let rowNumber = 0; rowNumber < rowsCount; rowNumber += 1) {
-      const columnCount = await driversPage.getTableRowCells(rowNumber).count();
+      const columnCount = await this.app.driversPage.getTableRowCells(rowNumber).count();
 
       for (let columnNumber = 0; columnNumber < columnCount; columnNumber += 1) {
-        const cell = driversPage.getTableCell(rowNumber, columnNumber);
+        const cell = this.app.driversPage.getTableCell(rowNumber, columnNumber);
 
         expect.soft(
           await cell.innerText(), 
