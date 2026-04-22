@@ -1,15 +1,32 @@
-export class User {
+import { expect } from '@playwright/test';
+
+export type User = {
   name: string;
   email: string;
   password: string;
+};
+
+export class UserBuilder {
+  private user: User;
 
   constructor(name: string, email: string) {
-    this.name = name;
-    this.email = email;
-    this.password = process.env[`USER_${name.toUpperCase()}_PASS`] ?? '';
+    this.user = {
+      name,
+      email,
+      password: process.env[`USER_${name.toUpperCase()}_PASS`] ?? '',
+    };
+  }
+
+  validate() {
+    expect(this.user.password, `Missing env var: USER_${this.user.name.toUpperCase()}_PASS`).toBeTruthy();
+    return this;
+  }
+
+  build() {
+    return this.user;
   }
 }
 
 export const users = {
-  testUser: new User('Test', 'test@gmail.com')
+  testUser: new UserBuilder('Test', 'test@gmail.com').build(),
 };

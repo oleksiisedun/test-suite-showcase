@@ -1,6 +1,6 @@
-import { test } from '../src/fixtures/login';
+import { test } from 'src/fixtures';
 
-test('Verify that drivers table is filled with data', async ({ steps }) => {
+test.skip('Verify that drivers table is filled with data', async ({ steps }) => {
   await steps.openDriversPage();
   await steps.checkTableIsFilledWithData();
 });

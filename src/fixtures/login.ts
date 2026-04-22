@@ -1,8 +1,8 @@
 export * from '@playwright/test';
 
-import { test as base } from './base';
-import { users } from '../helpers/users';
-import { goto } from '../pages/navigatable';
+import { test as base } from 'src/fixtures/base';
+import { users } from 'src/helpers/users';
+import { goto } from 'src/pages/navigatable';
 
 export type TestOptions = {
   user: keyof typeof users;

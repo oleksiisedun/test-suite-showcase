@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { User } from "../helpers/users";
-import { regexes } from '../helpers/api';
+import { User } from 'src/helpers/users';
+import { regexes } from 'src/helpers/api';
 import { Base } from './base';
 import { Navigatable } from './navigatable';
 

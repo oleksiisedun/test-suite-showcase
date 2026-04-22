@@ -1,5 +1,5 @@
-import { test, expect } from '../src/fixtures/login';
-import { users } from '../src/helpers/users';
+import { test, expect } from 'src/fixtures';
+import { users } from 'src/helpers/users';
 
 test('Check user email', async ({ api, user }) => {
   const { email } = await api.get('me');

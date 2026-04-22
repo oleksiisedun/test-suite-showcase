@@ -1,17 +1,22 @@
 {
-  "name": "partumplus-test",
+  "name": "test-suite-showcase",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "report": "npx playwright show-report"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.45.2",
-    "@types/node": "^20.10.5"
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^20.16.0"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "16.4.5",
+    "json-2-csv": "5.5.4"
   }
 }
