@@ -12,7 +12,6 @@ A production-grade Playwright test suite demonstrating best practices for end-to
 - **Page Object Model** — scoped locators, component hierarchy, clean separation of concerns
 - **Composable Steps** — mixin-assembled `Steps` class as the primary test API
 - **Custom Fixtures** — auto-login, notification handler, network monitor, API client
-- **Route Interception** — mutate request/response bodies for isolated test scenarios
 - **Network Monitor** — opt-in request capture with JSON + CSV reports
 - **Custom Matchers** — e.g. `toBeWithTolerance` for floating-point assertions
 - **User Builder** — fluent builder pattern with pre-flight env validation
@@ -27,7 +26,7 @@ npx playwright install
 cp .env.template .env   # fill in credentials
 ```
 
-Required environment variable: `USER_TEST_PASS` — password for the test user account.
+Required environment variable: `USER_TEST_PASS` — password for the test user account (`12345678`).
 
 ---
 
@@ -127,25 +126,6 @@ expect(received).toBeWithTolerance(expected, { tolerance: 0.1 });
 ### Network Monitor
 
 Tag a test with `@NETWORK_MONITOR` and run with `NETWORK_MONITOR=true` to record all network traffic. Reports land in `./network-report/{tags}/{project}/{timestamp}/` as JSON and CSV, split into backend requests (XHR/fetch/WebSocket) and static assets.
-
-### Route Interception
-
-```typescript
-// Mutate outgoing request body
-await app.page.route('**/api/v1/example', async route => {
-  const postData = route.request().postDataJSON();
-  postData.field = 'mutated';
-  await route.continue({ postData: JSON.stringify(postData) });
-});
-
-// Mutate incoming response body
-await app.page.route('**/api/v1/example', async route => {
-  const response = await route.fetch();
-  const body = await response.json();
-  body.field = 'mutated';
-  await route.fulfill({ response, body: JSON.stringify(body) });
-});
-```
 
 ### User Builder
 
