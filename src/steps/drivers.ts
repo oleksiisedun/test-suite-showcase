@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
-import { goto } from "../pages/navigatable";
+import { goto } from "src/helpers/utils";
 import { BaseSteps } from "./base-steps";
-import { step } from "../helpers/step";
+import { step } from "src/helpers/utils";
 
 export class DriversSteps extends BaseSteps {
   @step('Open drivers page')

@@ -1,5 +1,22 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, Locator, test } from '@playwright/test';
 import { randomInt } from 'crypto';
+import { GotoOptions, Navigatable } from 'src/pages/pages.types';
+
+export function step(title?: string) {
+  return function(target: Function, context: ClassMethodDecoratorContext) {
+    return function(this: unknown, ...args: any) {
+      return test.step(title ?? context.name as string, async () => target.call(this, ...args));
+    }
+  };
+}
+
+export async function goto<T extends Navigatable>(
+  pageObject: T,
+  urlParams?: Parameters<T['url']>[0],
+  options?: GotoOptions
+) {
+  return pageObject.page.goto(pageObject.url(urlParams), options);
+}
 
 export function applyMixins(derivedCtor: any, constructors: any[]) {
   constructors.forEach((baseCtor) => {

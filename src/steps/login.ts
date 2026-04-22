@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { BaseSteps } from "./base-steps";
-import { step } from "../helpers/step";
+import { step } from "src/helpers/utils";
 
 export class LoginSteps extends BaseSteps {
   @step('Check login page')

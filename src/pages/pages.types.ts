@@ -7,11 +7,3 @@ export interface Navigatable {
   url(urlParams?: Record<string, any>): string;
   waitForLoadState(): Promise<void>;
 }
-
-export async function goto<T extends Navigatable>(
-  pageObject: T,
-  urlParams?: Parameters<T['url']>[0],
-  options?: GotoOptions
-) {
-  return pageObject.page.goto(pageObject.url(urlParams), options);
-}

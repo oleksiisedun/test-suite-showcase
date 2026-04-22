@@ -2,7 +2,7 @@ export * from '@playwright/test';
 
 import { test as base } from 'src/fixtures/base';
 import { users } from 'src/helpers/users';
-import { goto } from 'src/pages/navigatable';
+import { goto } from 'src/helpers/utils';
 
 export type TestOptions = {
   user: keyof typeof users;

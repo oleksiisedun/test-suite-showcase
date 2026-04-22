@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { Base } from './base';
 import { Sidebar } from './components/sidebar';
-import { Navigatable } from './navigatable';
+import { Navigatable } from './pages.types';
 
 export abstract class BaseViewPage extends Base implements Navigatable {
   abstract readonly pageURL: string;

@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { User } from 'src/helpers/users';
 import { regexes } from 'src/helpers/api';
 import { Base } from './base';
-import { Navigatable } from './navigatable';
+import { Navigatable } from './pages.types';
 
 export class LoginPage extends Base implements Navigatable {
   readonly emailField = this.getByType('email');
