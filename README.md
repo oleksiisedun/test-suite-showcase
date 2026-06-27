@@ -23,10 +23,10 @@ A production-grade Playwright test suite demonstrating best practices for end-to
 ```bash
 npm install
 npx playwright install
-cp .env.template .env   # fill in credentials
+cp env.template .env   # fill in credentials
 ```
 
-Required environment variable: `USER_TEST_PASS` — password for the test user account (`12345678`).
+Required environment variables: `URL` (app base URL, e.g. `dev.omni-dispatch.com`) and `USER_TEST_PASS` (password for the test user account).
 
 ---
 
@@ -56,16 +56,44 @@ NETWORK_MONITOR=true npx playwright test --grep @NETWORK_MONITOR
 
 ## Architecture
 
+The suite is layered: test files talk only to fixtures, fixtures compose page objects and steps, and steps orchestrate actions through page objects.
+
+```mermaid
+graph TD
+  Tests["Test files\ntests/*.spec.ts"] --> Fixtures
+
+  subgraph Fixtures["src/fixtures/"]
+    BaseF["base.ts\napp · api · steps\nnetworkMonitor · notificationHandler"]
+    LoginF["login.ts\nlogin (auto)"]
+    BaseF --> LoginF
+  end
+
+  Fixtures --> Pages
+  Fixtures --> StepsLayer
+  Fixtures --> Helpers
+
+  subgraph Pages["src/pages/"]
+    Base --> BaseViewPage
+    BaseViewPage --> LoginPage & DriversPage
+    LoginPage & DriversPage -.->|composes| Sidebar["Sidebar\n(component)"]
+  end
+
+  subgraph StepsLayer["src/steps/"]
+    BaseSteps --> LoginSteps & DriversSteps
+    LoginSteps & DriversSteps -->|applyMixins| Steps
+  end
+
+  subgraph Helpers["src/helpers/"]
+    API["api/\nAPI · APIEndpoints · APIRegexes"]
+    Users["users/\nUserBuilder · User"]
+    NM["network-monitor/\nNetworkMonitor"]
+    Utils["utils.ts\nstep · goto · getBaseURL"]
+  end
+```
+
 ### Page Object Hierarchy
 
-```
-Base (src/pages/base.ts)
-  └── BaseViewPage (src/pages/base-view.page.ts)
-       └── LoginPage / DriversPage
-            └── Components (sidebar, etc.)
-```
-
-`Base` holds `page` and `root` (a `Page` or `Locator`), and exposes `getByTestId`, `getByText`, and `locator`. Components extend `Base` and override `root` to scope all their locators to a container element — no leaking selectors.
+`Base` holds `page` and `root` (a `Page` or `Locator`), and exposes `getByTestId`, `getByRole`, `locator`, and `waitForResponse`. Components extend `Base` and override `root` to scope all their locators to a container element — no leaking selectors.
 
 ### Steps
 
