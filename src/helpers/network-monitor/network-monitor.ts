@@ -14,6 +14,7 @@ export class NetworkMonitor {
     this.timestamp = Date.now();
   }
 
+  /** Both the `NETWORK_MONITOR` env var and a `@NETWORK_MONITOR` test tag must be present. */
   static isEnabled(testInfo: TestInfo) {
     return process.env.NETWORK_MONITOR && testInfo.tags.some(tag => tagRegExp.test(tag));
   }
@@ -22,13 +23,13 @@ export class NetworkMonitor {
     try {
       return await request.sizes();
     } catch {
-      return null;
+      return undefined;
     }
   }
 
   private async getStatus(request: Request) {
     try {
-      return (await request.response()).status();
+      return (await request.response())?.status() ?? null;
     } catch {
       return null;
     }
@@ -46,7 +47,7 @@ export class NetworkMonitor {
         type: request.resourceType(),
         status: await this.getStatus(request),
         time: request.timing(),
-        ...(request.failure() ? { errorMessage: request.failure().errorText } : { size: await this.getSizes(request) }),
+        ...(request.failure() ? { errorMessage: request.failure()!.errorText } : { size: await this.getSizes(request) }),
       });
     });
   }
@@ -55,6 +56,8 @@ export class NetworkMonitor {
     await this.page.unrouteAll({ behavior: 'ignoreErrors' });
   }
 
+  /** Mutates the collected requests in-place: strips the leading `/` from each
+   * pathname, converts `startTime` from a ms epoch to a `Date`, and sorts by pathname. */
   processRequests() {
     this.requests.forEach(item => {
       item.pathname = item.pathname.slice(1);
@@ -63,6 +66,8 @@ export class NetworkMonitor {
     this.requests.sort((a, b) => a.pathname.localeCompare(b.pathname));
   }
 
+  /** Writes JSON + CSV files to `./network-report/{tags}/{project}/{timestamp}/`,
+   * split into `backend.*` (xhr/fetch/eventsource/websocket) and `assets.*` (everything else). */
   exportReport() {
     const tags = this.testInfo.tags.filter(tag => !tagRegExp.test(tag)).join('-').replace(/@/g, '');
     const project = this.testInfo.project.name.replace(/[\s,]+/g, '-').toLowerCase();
