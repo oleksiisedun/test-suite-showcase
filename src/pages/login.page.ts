@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { User } from 'src/helpers/users';
-import { regexes } from 'src/helpers/api';
+import { APIRegexes } from 'src/helpers/api';
 import { Base } from './base';
 import { Navigatable } from './pages.types';
 
@@ -20,7 +20,7 @@ export class LoginPage extends Base implements Navigatable {
     await this.emailField.fill(user.email);
     await this.passwordField.fill(user.password);
     const [res] = await Promise.all([
-      this.page.waitForResponse(regexes.signIn),
+      this.page.waitForResponse(APIRegexes.signIn),
       this.loginButton.click()
     ]);
 

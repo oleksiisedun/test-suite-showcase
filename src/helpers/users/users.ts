@@ -1,10 +1,5 @@
 import { expect } from '@playwright/test';
-
-export type User = {
-  name: string;
-  email: string;
-  password: string;
-};
+import { User } from './users.types';
 
 export class UserBuilder {
   private user: User;
