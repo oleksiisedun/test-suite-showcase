@@ -7,10 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm install
 npx playwright install
-cp .env.template .env   # then fill in credentials
+cp env.template .env   # then fill in credentials
 ```
 
-Required `.env` variable: `USER_TEST_PASS` (password for the test user account).
+Required `.env` variables: `URL` (app URL, e.g. `dev.omni-dispatch.com`), `USER_TEST_PASS` (password for the test user account).
 
 ## Commands
 
@@ -42,7 +42,7 @@ Base (src/pages/base.ts)
             └── Components (sidebar, etc.)
 ```
 
-`Base` holds `page: Page` and `root: Page | Locator`, and exposes `getByTestId`, `getByText`, `locator`. Components extend `Base` and override `root` to scope their locators to a container element.
+`Base` holds `page: Page` and `root: Page | Locator`, and exposes `getByTestId`, `getByRole`, `locator`. Components extend `Base` and override `root` to scope their locators to a container element. `Base` also exposes `waitForResponse()` decorated with `@step` for intercepting API calls.
 
 ### Steps
 
@@ -51,6 +51,8 @@ Base (src/pages/base.ts)
 - `DriversSteps` — `openDriversPage`, `checkTableIsFilledWithData`
 
 Steps are injected via the `steps` fixture and are the primary API for orchestrating test flows.
+
+All classes extend `BaseSteps` (src/steps/base.steps.ts), which provides shared access to `app`, `api`, and `testInfo`.
 
 ### Fixtures (src/fixtures/)
 
@@ -61,6 +63,16 @@ All test files import from `src/fixtures` (never directly from `@playwright/test
 - `networkMonitor` (auto) — opt-in request recording; enable via `@NETWORK_MONITOR` tag + `NETWORK_MONITOR=true` env var
 - `notificationHandler` (auto) — auto-dismisses `[role="alert"]` notifications
 - `login` (auto) — navigates to login and authenticates before each test (from `src/fixtures/login`)
+
+Types are defined in `src/fixtures/fixtures.types.ts` (`TestOptions`, `TestFixtures`).
+
+### Helper utilities (src/helpers/)
+
+- `api/` — `API` class for direct HTTP calls, `APIEndpoints`/`APIRegexes` constants, `APIEndpoint`/`APIRegex` types
+- `users/` — `UserBuilder` and `users` constant, `User` type
+- `network-monitor/` — `NetworkMonitor`, backs the `networkMonitor` fixture (`@NETWORK_MONITOR` tag)
+- `app.ts` — `App` container (page object wrapper)
+- `utils.ts` — `step` decorator, `applyMixins`, `goto`, `getBaseURL`, `getNumber`, and other shared helpers
 
 ### User builder
 
@@ -95,11 +107,19 @@ test.describe(() => {
 // Include description for non-obvious assertions
 await expect(element, 'Table should have rows').toHaveCount(n);
 
+// Array content
+await expect(element).toContainText(['A', 'B'], { ignoreCase: true, useInnerText: true });
+
 // Async retry (for flaky multi-step interactions)
 await expect(async () => { /* actions */ }).toPass();
 
 // Polling
 await expect.poll(async () => someCondition).toBeTruthy();
+
+// Soft catch fallback
+await expect(element).toContainText('msg').catch(async () => {
+  await expect(other).toBeHidden();
+});
 
 // Custom: floating-point comparison with tolerance
 expect(received).toBeWithTolerance(expected, { tolerance: 0.1 });
@@ -107,7 +127,7 @@ expect(received).toBeWithTolerance(expected, { tolerance: 0.1 });
 
 ### Timeouts
 
-Write as underscored numeric literals: `5_000`, `20_000`, `60_000`. Default timeouts: test = 90 s, assertion = 20 s. Avoid `page.waitForTimeout()` for UI state — use `element.waitFor({ state })` or `expect.poll()` instead.
+Write as underscored numeric literals: `5_000`, `20_000`, `60_000`. Default timeouts: test = 90 s, assertion = 20 s. Use `test.slow()` inside the body to triple the timeout for long-running tests. Avoid `page.waitForTimeout()` for UI state — use `element.waitFor({ state })` or `expect.poll()` instead.
 
 ### Network Monitor
 
@@ -117,24 +137,14 @@ Tag a test with `@NETWORK_MONITOR` and run with `NETWORK_MONITOR=true` to captur
 NETWORK_MONITOR=true npx playwright test --grep @NETWORK_MONITOR
 ```
 
-### Route interception
+### Adding new page object methods
 
-```typescript
-// Mutate request body
-await app.page.route('**/api/v1/example', async route => {
-  const postData = route.request().postDataJSON();
-  postData.field = 'mutated';
-  await route.continue({ postData: JSON.stringify(postData) });
-});
-
-// Mutate response body
-await app.page.route('**/api/v1/example', async route => {
-  const response = await route.fetch();
-  const body = await response.json();
-  body.field = 'mutated';
-  await route.fulfill({ response, body: JSON.stringify(body) });
-});
-```
+- Decorate every public **async** method with `@step('Description')` from `src/helpers/utils`
+- Prefer `getByTestId` for locators; fall back to `getByRole` then `locator`
+- Mark locators `protected readonly` unless they need to be accessed from tests directly
+- Place element definitions as `readonly` class properties; place methods below
+- Order members: locators → abstract → sync → async
+- Exception to the `@step` rule: sync getter methods (e.g. `getRow()`, `getCell()`) and type guards stay public and synchronous without `@step`. `@step` is reserved for async action methods (clicks, navigation, waits) — applying it to a sync getter forces `await` at every call site for no benefit.
 
 ### Path aliases
 
@@ -143,8 +153,10 @@ await app.page.route('**/api/v1/example', async route => {
 ## What to avoid
 
 - **Hardcoded waits** — never use `page.waitForTimeout()`. Use `element.waitFor({ state })`, `expect(element).toBeVisible()`, or `expect.poll()` instead.
-- **Importing from `@playwright/test` directly** — always import `test` and `expect` from `src/fixtures`, which re-exports everything with custom fixtures and matchers layered on top.
+- **Importing from `@playwright/test` directly** — always import `test`, `expect`, and Playwright types from `src/fixtures`, which re-exports everything with custom fixtures and matchers layered on top.
 - **Locating elements by CSS class** — classes are unstable. Use `getByTestId`, then `getByRole`, then `locator` with a semantic selector as a last resort.
 - **Duplicating step logic in tests** — if an action is used more than once, it belongs in the appropriate step class, decorated with `@step()`.
 - **`test.only`** — forbidden on CI (`forbidOnly: true` in config). Never commit it.
 - **Relative imports crossing multiple directories** — use the `src/*` path alias instead of `../../helpers/utils`.
+- **Defining locators in test files** — locators belong in page object classes, not in tests. Expose them via page object methods or properties; tests should only call those.
+- **Asserting without waiting** — synchronous `expect(value).toBe(x)` on values retrieved from the DOM can race. Prefer `await expect(locator).toHaveText(x)` so Playwright retries automatically.
