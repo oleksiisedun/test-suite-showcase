@@ -1,5 +1,5 @@
 import { applyMixins } from "../helpers/utils";
-import { BaseSteps } from "./base-steps";
+import { BaseSteps } from "./base.steps";
 import { LoginSteps } from "./login";
 import { DriversSteps } from "./drivers";
 

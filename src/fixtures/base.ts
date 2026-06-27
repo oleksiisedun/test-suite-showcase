@@ -5,19 +5,14 @@ import { App } from 'src/helpers/app';
 import { API } from 'src/helpers/api';
 import { Steps } from 'src/steps';
 import { NetworkMonitor } from 'src/helpers/network-monitor';
-
-type TestFixtures = {
-  app: App;
-  api: API;
-  steps: Steps;
-  networkMonitor: void;
-  notificationHandler: void;
-}
+import { TestFixtures } from './fixtures.types';
 
 export const test = base.extend<TestFixtures>({
   app: async ({ page }, use) => await use(new App(page)),
+
   api: async ({ page }, use) => await use(new API(page.request)),
-  steps: async ({ app, api }, use) => await use(new Steps(app, api)),
+
+  steps: async ({ app, api }, use, testInfo) => await use(new Steps(app, api, testInfo)),
 
   networkMonitor: [async ({ page }, use, testInfo) => {
     if (NetworkMonitor.isEnabled(testInfo)) {
