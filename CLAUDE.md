@@ -27,9 +27,11 @@ npm run report
 # Run a single test file
 npx playwright test tests/checkout.spec.ts
 
-# Run on a specific project
+# Run on a specific project (configured: 'Desktop Chrome, standard user', 'Mobile Chrome, standard user')
 npx playwright test --project 'Desktop Chrome, standard user'
 ```
+
+Local retries default to `0`; override with `RETRIES=n npm test` (`playwright.config.ts` reads `process.env.RETRIES`, ignored on CI where it's hardcoded to `2`).
 
 ## Architecture
 
@@ -65,8 +67,10 @@ All test files import from `src/fixtures` (never directly from `@playwright/test
 - `app` — page object container (`App` with `loginPage`, `inventoryPage`, `cartPage`, `checkoutStepOnePage`, `checkoutStepTwoPage`, `checkoutCompletePage`, `notification`)
 - `steps` — composed `Steps` instance
 - `networkMonitor` (auto) — opt-in request recording; enable via `@NETWORK_MONITOR` tag + `NETWORK_MONITOR=true` env var
-- `notificationHandler` (auto) — auto-dismisses `[role="alert"]` notifications
+- `notificationHandler` (auto) — registers a `page.addLocatorHandler` on `app.notification` (`page.getByRole('alert')`) that waits for it to hide whenever it appears, so tests never have to dismiss alerts manually
 - `login` (auto) — navigates to login and authenticates before each test (from `src/fixtures/login`)
+
+`user` is a **test option** (`TestOptions.user`, default `'standardUser'`) consumed by the `login` fixture to pick which SauceDemo account (`src/helpers/users`) to log in as. Projects override it per-run, e.g. `use: { ...devices['Pixel 7'], user: 'standardUser' }` — add a project with a different `user` value to run the suite as another account on a given device.
 
 Types are defined in `src/fixtures/fixtures.types.ts` (`TestOptions`, `TestFixtures`).
 

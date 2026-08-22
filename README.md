@@ -116,8 +116,10 @@ All test files import from `src/fixtures` — never directly from `@playwright/t
 | `app` | manual | Page object container (`loginPage`, `inventoryPage`, `cartPage`, `checkoutStepOnePage`, `checkoutStepTwoPage`, `checkoutCompletePage`, `notification`) |
 | `steps` | manual | Composed `Steps` instance |
 | `login` | auto | Navigates to login and authenticates before each test |
-| `notificationHandler` | auto | Auto-dismisses `[role="alert"]` notifications |
+| `notificationHandler` | auto | Registers a `page.addLocatorHandler` that waits out `[role="alert"]` notifications whenever they appear |
 | `networkMonitor` | auto | Opt-in request recorder (requires `@NETWORK_MONITOR` tag) |
+
+`user` is a project-level test option (default `standardUser`) that picks which SauceDemo account the `login` fixture uses — set per project in `playwright.config.ts` (currently `Desktop Chrome, standard user` and `Mobile Chrome, standard user`).
 
 ### Writing Tests
 
