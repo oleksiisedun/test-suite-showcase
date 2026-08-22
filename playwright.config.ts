@@ -9,7 +9,7 @@ export default defineConfig<TestOptions>({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : +process.env.RETRIES! || 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : (+process.env.WORKERS! || undefined),
   timeout: 90_000,
   expect: { timeout: 20_000 },
   reporter: 'html',

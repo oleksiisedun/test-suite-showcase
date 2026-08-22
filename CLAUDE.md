@@ -31,7 +31,7 @@ npx playwright test tests/checkout.spec.ts
 npx playwright test --project 'Desktop Chrome, standard user'
 ```
 
-Local retries default to `0`; override with `RETRIES=n npm test` (`playwright.config.ts` reads `process.env.RETRIES`, ignored on CI where it's hardcoded to `2`).
+Local retries default to `0`; override with `RETRIES=n npm test` (`playwright.config.ts` reads `process.env.RETRIES`, ignored on CI where it's hardcoded to `2`). Local worker count defaults to Playwright's own auto-detection; override with `WORKERS=n npm test`, ignored on CI where it's hardcoded to `1`.
 
 ## Architecture
 

@@ -24,7 +24,7 @@ npx playwright install
 cp env.template .env   # fill in credentials
 ```
 
-Required environment variables: `URL` (app base URL, e.g. `www.saucedemo.com`) and `USERS_PASSWORD` (shared password for every SauceDemo test account, e.g. `secret_sauce`) — both are checked once by `globalSetup` before the run starts, failing fast with a clear message if either is missing.
+Required environment variables: `URL` (app base URL, e.g. `www.saucedemo.com`) and `USERS_PASSWORD` (shared password for every SauceDemo test account, e.g. `secret_sauce`) — both are checked once by `globalSetup` before the run starts, failing fast with a clear message if either is missing. Optionally, `WORKERS` overrides the local parallel worker count.
 
 ---
 
