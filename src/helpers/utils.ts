@@ -69,12 +69,12 @@ export const isInViewport = async (
   options: { ratio?: number; timeout?: number } = { timeout: 1_000 }
 ) => expect(locator).toBeInViewport(options).then(() => true).catch(() => false);
 
-/** Non-throwing boolean wrapper around `expect(locator).toBeVisible()`,
+/** Non-throwing boolean wrapper around `locator.waitFor()`,
  * for branching on element state instead of asserting it. */
 export const isVisible = async (
   locator: Locator,
-  options = { timeout: 1_000 }
-) => expect(locator).toBeVisible(options).then(() => true).catch(() => false);
+  options: Parameters<Locator['waitFor']>[0] = { timeout: 1_000 }
+) => locator.waitFor(options).then(() => true).catch(() => false);
 
 /** Asserts (via `expect`) that `arrLength >= amount` — call sites must guarantee there are
  * enough elements; this is not a no-op when the condition fails. */
