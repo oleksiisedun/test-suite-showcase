@@ -17,7 +17,7 @@ export default defineConfig<TestOptions>({
   globalTeardown: './src/helpers/global-teardown',
   use: {
     baseURL: getBaseURL(),
-    trace: 'on-first-retry',
+    trace: { mode: 'on-first-retry', screenshots: false },
     screenshot: 'only-on-failure',
     testIdAttribute: 'data-test',
   },
