@@ -54,7 +54,7 @@ NETWORK_MONITOR=true npx playwright test --grep @NETWORK_MONITOR
 
 ## Architecture
 
-The suite is layered: test files talk only to fixtures, fixtures compose page objects and steps, and steps orchestrate actions through page objects. Outside that per-test flow, `playwright.config.ts` wires up `global-setup.ts`/`global-teardown.ts` (env validation before the run; teardown is currently a no-op).
+The suite is layered: test files talk only to fixtures, fixtures compose page objects and steps, and steps orchestrate actions through page objects. Outside that per-test flow, `playwright.config.ts` wires up `global-setup.ts`/`global-teardown.ts` (env validation before the run; teardown is currently a no-op) and an unused `api/` scaffold showing how a real backend would be called directly via `APIRequestContext`.
 
 ```mermaid
 graph TD
@@ -87,6 +87,7 @@ graph TD
     NM["network-monitor/\nNetworkMonitor"]
     Utils["utils.ts\nstep · goto · getBaseURL"]
     GlobalHooks["global-setup.ts · global-teardown.ts\n(wired via playwright.config)"]
+    Api["api/\nAPI (unused scaffold)"]
   end
 ```
 
