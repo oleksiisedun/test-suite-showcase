@@ -24,5 +24,9 @@ export default defineConfig<TestOptions>({
       name: 'Desktop Chrome, standard user',
       use: { ...devices['Desktop Chrome'], user: 'standardUser' },
     },
+    {
+      name: 'Mobile Chrome, standard user',
+      use: { ...devices['Pixel 7'], user: 'standardUser' },
+    },
   ],
 });
