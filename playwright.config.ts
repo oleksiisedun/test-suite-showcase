@@ -13,6 +13,8 @@ export default defineConfig<TestOptions>({
   timeout: 90_000,
   expect: { timeout: 20_000 },
   reporter: 'html',
+  globalSetup: './src/helpers/global-setup',
+  globalTeardown: './src/helpers/global-teardown',
   use: {
     baseURL: getBaseURL(),
     trace: 'on-first-retry',

@@ -12,6 +12,7 @@ A production-grade Playwright test suite demonstrating best practices for end-to
 - **Network Monitor** — opt-in request capture with JSON + CSV reports
 - **Custom Matchers** — e.g. `toBeWithTolerance` for floating-point assertions
 - **User Builder** — fluent builder pattern with pre-flight env validation
+- **Global Setup/Teardown** — fail-fast env validation before the run starts, teardown hook ready for cleanup
 
 ---
 
@@ -23,7 +24,7 @@ npx playwright install
 cp env.template .env   # fill in credentials
 ```
 
-Required environment variables: `URL` (app base URL, e.g. `www.saucedemo.com`) and `USERS_PASSWORD` (shared password for every SauceDemo test account, e.g. `secret_sauce`).
+Required environment variables: `URL` (app base URL, e.g. `www.saucedemo.com`) and `USERS_PASSWORD` (shared password for every SauceDemo test account, e.g. `secret_sauce`) — both are checked once by `globalSetup` before the run starts, failing fast with a clear message if either is missing.
 
 ---
 
@@ -53,7 +54,7 @@ NETWORK_MONITOR=true npx playwright test --grep @NETWORK_MONITOR
 
 ## Architecture
 
-The suite is layered: test files talk only to fixtures, fixtures compose page objects and steps, and steps orchestrate actions through page objects.
+The suite is layered: test files talk only to fixtures, fixtures compose page objects and steps, and steps orchestrate actions through page objects. Outside that per-test flow, `playwright.config.ts` wires up `global-setup.ts`/`global-teardown.ts` (env validation before the run; teardown is currently a no-op).
 
 ```mermaid
 graph TD
@@ -85,6 +86,7 @@ graph TD
     Users["users/\nUserBuilder · User"]
     NM["network-monitor/\nNetworkMonitor"]
     Utils["utils.ts\nstep · goto · getBaseURL"]
+    GlobalHooks["global-setup.ts · global-teardown.ts\n(wired via playwright.config)"]
   end
 ```
 

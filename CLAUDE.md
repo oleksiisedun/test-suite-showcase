@@ -80,6 +80,8 @@ Types are defined in `src/fixtures/fixtures.types.ts` (`TestOptions`, `TestFixtu
 - `network-monitor/` — `NetworkMonitor`, backs the `networkMonitor` fixture (`@NETWORK_MONITOR` tag)
 - `app.ts` — `App` container (page object wrapper)
 - `utils.ts` — `step` decorator, `applyMixins`, `goto`, `getBaseURL`, `getNumber`, and other shared helpers
+- `validate-env.ts` — `validateEnvVars()`, fail-fast check for required `.env` vars, called from `global-setup.ts`
+- `global-setup.ts` / `global-teardown.ts` — wired into `playwright.config.ts`; setup validates env vars once before the run, teardown is currently a no-op (SauceDemo has no server-side test data to clean up)
 
 ### User builder
 
