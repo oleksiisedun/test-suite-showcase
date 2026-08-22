@@ -10,7 +10,7 @@ type LoginFixture = {
 }
 
 export const test = base.extend<LoginFixture & TestOptions>({
-  user: ['testUser', { option: true }],
+  user: ['standardUser', { option: true }],
   login: [async ({ app, user }, use) => {
     await goto(app.loginPage);
     await app.loginPage.login(users[user]);

@@ -17,11 +17,12 @@ export default defineConfig<TestOptions>({
     baseURL: getBaseURL(),
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    testIdAttribute: 'data-test',
   },
   projects: [
     {
-      name: 'Desktop Chrome, test user',
-      use: { ...devices['Desktop Chrome'], user: 'testUser' },
+      name: 'Desktop Chrome, standard user',
+      use: { ...devices['Desktop Chrome'], user: 'standardUser' },
     },
   ],
 });

@@ -1,12 +1,14 @@
-import { applyMixins } from "../helpers/utils";
+import { applyMixins } from "src/helpers/utils";
 import { BaseSteps } from "./base.steps";
 import { LoginSteps } from "./login";
-import { DriversSteps } from "./drivers";
+import { InventorySteps } from "./inventory";
+import { CartSteps } from "./cart";
+import { CheckoutSteps } from "./checkout";
 
 class Steps extends BaseSteps {};
 
-interface Steps extends LoginSteps, DriversSteps {};
+interface Steps extends LoginSteps, InventorySteps, CartSteps, CheckoutSteps {};
 
-applyMixins(Steps, [LoginSteps, DriversSteps]);
+applyMixins(Steps, [LoginSteps, InventorySteps, CartSteps, CheckoutSteps]);
 
 export { Steps };

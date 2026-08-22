@@ -1,29 +1,25 @@
-import { expect } from '@playwright/test';
 import { User } from 'src/helpers/users';
-import { APIRegexes } from 'src/helpers/api';
 import { Base } from './base';
 import { Navigatable } from './pages.types';
 
 export class LoginPage extends Base implements Navigatable {
-  readonly emailField = this.getByType('email');
-  readonly passwordField = this.getByType('password');
-  readonly loginButton = this.locator('button').getByText('Log in');
-  readonly wrongCredentialsMessage = this.getByText('Wrong Email or password');
+  readonly usernameField = this.getByTestId('username');
+  readonly passwordField = this.getByTestId('password');
+  readonly loginButton = this.getByTestId('login-button');
+  readonly errorMessage = this.getByTestId('error');
 
   url() {
-    return 'login';
+    return '';
   }
 
   async waitForLoadState() {}
 
   async login(user: User) {
-    await this.emailField.fill(user.email);
+    await this.usernameField.fill(user.username);
     await this.passwordField.fill(user.password);
-    const [res] = await Promise.all([
-      this.page.waitForResponse(APIRegexes.signIn),
+    await Promise.all([
+      this.page.waitForURL('**/inventory.html'),
       this.loginButton.click()
     ]);
-
-    expect(res.ok()).toBeTruthy();
   }
 }

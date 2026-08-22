@@ -1,5 +1,13 @@
 import { expect as baseExpect } from '@playwright/test';
 
+declare global {
+  namespace PlaywrightTest {
+    interface Matchers<R, T> {
+      toBeWithTolerance(expected: number, options?: { tolerance: number }): R;
+    }
+  }
+}
+
 export const expect = baseExpect.extend({
   toBeWithTolerance(received: number, expected: number, options?: { tolerance: number }) {
     const assertionName = 'toBeWithTolerance';

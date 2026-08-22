@@ -10,7 +10,7 @@ npx playwright install
 cp env.template .env   # then fill in credentials
 ```
 
-Required `.env` variables: `URL` (app URL, e.g. `dev.omni-dispatch.com`), `USER_TEST_PASS` (password for the test user account).
+Required `.env` variables: `URL` (app URL, e.g. `www.saucedemo.com`), `USERS_PASSWORD` (shared password for every SauceDemo test account, e.g. `secret_sauce`).
 
 ## Commands
 
@@ -25,10 +25,10 @@ npm run test:ui
 npm run report
 
 # Run a single test file
-npx playwright test tests/drivers.spec.ts
+npx playwright test tests/checkout.spec.ts
 
 # Run on a specific project
-npx playwright test --project 'Desktop Chrome, test user'
+npx playwright test --project 'Desktop Chrome, standard user'
 ```
 
 ## Architecture
@@ -37,29 +37,33 @@ npx playwright test --project 'Desktop Chrome, test user'
 
 ```
 Base (src/pages/base.ts)
+  ├── LoginPage
   └── BaseViewPage (src/pages/base-view.page.ts)
-       └── LoginPage / DriversPage
-            └── Components (sidebar, etc.)
+       └── InventoryPage / CartPage / CheckoutStepOnePage / CheckoutStepTwoPage / CheckoutCompletePage
+            └── Components (header, etc.)
 ```
 
-`Base` holds `page: Page` and `root: Page | Locator`, and exposes `getByTestId`, `getByRole`, `locator`. Components extend `Base` and override `root` to scope their locators to a container element. `Base` also exposes `waitForResponse()` decorated with `@step` for intercepting API calls.
+`Base` holds `page: Page` and `root: Page | Locator`, and exposes `getByTestId`, `getByRole`, `locator`. Components extend `Base` and override `root` to scope their locators to a container element. `Base` also exposes `waitForResponse()` decorated with `@step` for intercepting API calls. `LoginPage` extends `Base` directly (no header chrome before login); every authenticated page extends `BaseViewPage`, which composes a `Header` component (burger menu, nav links, cart icon/badge).
+
+SauceDemo tags elements with `data-test`, not `data-testid` — `playwright.config.ts` sets `use.testIdAttribute: 'data-test'` so `getByTestId` resolves correctly everywhere.
 
 ### Steps
 
 `Steps` (src/steps/index.ts) is assembled via `applyMixins` from separate step classes:
-- `LoginSteps` — `checkLoginPage`
-- `DriversSteps` — `openDriversPage`, `checkTableIsFilledWithData`
+- `LoginSteps` — `checkLoginPage`, `attemptLogin`, `checkLoginError`
+- `InventorySteps` — `openInventoryPage`, `addItemToCart`, `removeItemFromCart`, `checkCartBadgeCount`, `sortProductsBy`
+- `CartSteps` — `openCartPage`, `checkCartContainsItems`, `removeItemFromCartPage`, `proceedToCheckout`
+- `CheckoutSteps` — `fillCheckoutInfo`, `continueToOverview`, `attemptContinueToOverview`, `checkCheckoutInfoError`, `checkOrderTotal`, `finishCheckout`, `checkOrderComplete`
 
 Steps are injected via the `steps` fixture and are the primary API for orchestrating test flows.
 
-All classes extend `BaseSteps` (src/steps/base.steps.ts), which provides shared access to `app`, `api`, and `testInfo`.
+All classes extend `BaseSteps` (src/steps/base.steps.ts), which provides shared access to `app` and `testInfo`.
 
 ### Fixtures (src/fixtures/)
 
 All test files import from `src/fixtures` (never directly from `@playwright/test`). Custom fixtures:
-- `app` — page object container (`App` with `loginPage`, `driversPage`, `notification`)
+- `app` — page object container (`App` with `loginPage`, `inventoryPage`, `cartPage`, `checkoutStepOnePage`, `checkoutStepTwoPage`, `checkoutCompletePage`, `notification`)
 - `steps` — composed `Steps` instance
-- `api` — raw `API` instance for direct HTTP calls
 - `networkMonitor` (auto) — opt-in request recording; enable via `@NETWORK_MONITOR` tag + `NETWORK_MONITOR=true` env var
 - `notificationHandler` (auto) — auto-dismisses `[role="alert"]` notifications
 - `login` (auto) — navigates to login and authenticates before each test (from `src/fixtures/login`)
@@ -68,7 +72,6 @@ Types are defined in `src/fixtures/fixtures.types.ts` (`TestOptions`, `TestFixtu
 
 ### Helper utilities (src/helpers/)
 
-- `api/` — `API` class for direct HTTP calls, `APIEndpoints`/`APIRegexes` constants, `APIEndpoint`/`APIRegex` types
 - `users/` — `UserBuilder` and `users` constant, `User` type
 - `network-monitor/` — `NetworkMonitor`, backs the `networkMonitor` fixture (`@NETWORK_MONITOR` tag)
 - `app.ts` — `App` container (page object wrapper)
@@ -79,10 +82,10 @@ Types are defined in `src/fixtures/fixtures.types.ts` (`TestOptions`, `TestFixtu
 Users are built with the `UserBuilder` pattern — fluent API with `validate()` + `build()`:
 
 ```typescript
-const user = new UserBuilder('Test', 'test@gmail.com').validate().build();
+const user = new UserBuilder('Standard', 'standard_user').validate().build();
 ```
 
-`validate()` asserts the password env var exists before the test starts; `build()` returns the plain `User` object.
+`validate()` asserts the shared `USERS_PASSWORD` env var exists before the test starts; `build()` returns the plain `User` object. SauceDemo's accounts (`standard_user`, `locked_out_user`, `problem_user`, `performance_glitch_user`, `error_user`, `visual_user`) all share one password, so every `UserBuilder` call reads the same env var.
 
 ### Writing tests
 
@@ -91,8 +94,8 @@ import { test, expect } from 'src/fixtures';
 
 test.describe(() => {
   test('Descriptive test name', async ({ app, steps }) => {
-    await steps.openDriversPage();
-    await steps.checkTableIsFilledWithData();
+    await steps.addItemToCart('Sauce Labs Backpack');
+    await steps.checkCartBadgeCount(1);
   });
 });
 ```
@@ -144,7 +147,7 @@ NETWORK_MONITOR=true npx playwright test --grep @NETWORK_MONITOR
 - Mark locators `protected readonly` unless they need to be accessed from tests directly
 - Place element definitions as `readonly` class properties; place methods below
 - Order members: locators → abstract → sync → async
-- Exception to the `@step` rule: sync getter methods (e.g. `getRow()`, `getCell()`) and type guards stay public and synchronous without `@step`. `@step` is reserved for async action methods (clicks, navigation, waits) — applying it to a sync getter forces `await` at every call site for no benefit.
+- Exception to the `@step` rule: sync getter methods (e.g. `getItem()`, `getCartItem()`) and type guards stay public and synchronous without `@step`. `@step` is reserved for async action methods (clicks, navigation, waits) — applying it to a sync getter forces `await` at every call site for no benefit.
 
 ### Path aliases
 
@@ -153,7 +156,7 @@ NETWORK_MONITOR=true npx playwright test --grep @NETWORK_MONITOR
 ## What to avoid
 
 - **Hardcoded waits** — never use `page.waitForTimeout()`. Use `element.waitFor({ state })`, `expect(element).toBeVisible()`, or `expect.poll()` instead.
-- **Importing from `@playwright/test` directly** — always import `test`, `expect`, and Playwright types from `src/fixtures`, which re-exports everything with custom fixtures and matchers layered on top.
+- **Importing from `@playwright/test` directly** — always import `test`, `expect`, and Playwright types from `src/fixtures`, which re-exports everything with custom fixtures and matchers layered on top. (Exception: files under `src/steps/` import `expect` straight from `@playwright/test` to avoid a circular import with `src/fixtures`, which itself imports `Steps`.)
 - **Locating elements by CSS class** — classes are unstable. Use `getByTestId`, then `getByRole`, then `locator` with a semantic selector as a last resort.
 - **Duplicating step logic in tests** — if an action is used more than once, it belongs in the appropriate step class, decorated with `@step()`.
 - **`test.only`** — forbidden on CI (`forbidOnly: true` in config). Never commit it.

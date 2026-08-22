@@ -1,9 +1,6 @@
 # Playwright Test Suite Showcase
 
-> [!WARNING]
-> **Temporary limitations:** This showcase relies on a third-party web service that is currently not functioning as expected. As a result, some tests are skipped. A dedicated sample web page is being built specifically for demonstration purposes and will replace the dependency soon.
-
-A production-grade Playwright test suite demonstrating best practices for end-to-end testing: page object model, composable fixtures, typed step abstractions, network monitoring, and route interception.
+A production-grade Playwright test suite demonstrating best practices for end-to-end testing: page object model, composable fixtures, typed step abstractions, network monitoring, and route interception. The suite targets [saucedemo.com](https://www.saucedemo.com/), a stable public demo storefront, so it can be run by anyone without needing a private test environment.
 
 ---
 
@@ -11,7 +8,7 @@ A production-grade Playwright test suite demonstrating best practices for end-to
 
 - **Page Object Model** — scoped locators, component hierarchy, clean separation of concerns
 - **Composable Steps** — mixin-assembled `Steps` class as the primary test API
-- **Custom Fixtures** — auto-login, notification handler, network monitor, API client
+- **Custom Fixtures** — auto-login, notification handler, network monitor
 - **Network Monitor** — opt-in request capture with JSON + CSV reports
 - **Custom Matchers** — e.g. `toBeWithTolerance` for floating-point assertions
 - **User Builder** — fluent builder pattern with pre-flight env validation
@@ -26,7 +23,7 @@ npx playwright install
 cp env.template .env   # fill in credentials
 ```
 
-Required environment variables: `URL` (app base URL, e.g. `dev.omni-dispatch.com`) and `USER_TEST_PASS` (password for the test user account).
+Required environment variables: `URL` (app base URL, e.g. `www.saucedemo.com`) and `USERS_PASSWORD` (shared password for every SauceDemo test account, e.g. `secret_sauce`).
 
 ---
 
@@ -43,10 +40,10 @@ npm run test:ui
 npm run report
 
 # Run a single spec file
-npx playwright test tests/drivers.spec.ts
+npx playwright test tests/checkout.spec.ts
 
 # Target a specific browser project
-npx playwright test --project 'Desktop Chrome, test user'
+npx playwright test --project 'Desktop Chrome, standard user'
 
 # Capture network traffic for tagged tests
 NETWORK_MONITOR=true npx playwright test --grep @NETWORK_MONITOR
@@ -63,7 +60,7 @@ graph TD
   Tests["Test files\ntests/*.spec.ts"] --> Fixtures
 
   subgraph Fixtures["src/fixtures/"]
-    BaseF["base.ts\napp · api · steps\nnetworkMonitor · notificationHandler"]
+    BaseF["base.ts\napp · steps\nnetworkMonitor · notificationHandler"]
     LoginF["login.ts\nlogin (auto)"]
     BaseF --> LoginF
   end
@@ -74,17 +71,17 @@ graph TD
 
   subgraph Pages["src/pages/"]
     Base --> BaseViewPage
-    BaseViewPage --> LoginPage & DriversPage
-    LoginPage & DriversPage -.->|composes| Sidebar["Sidebar\n(component)"]
+    BaseViewPage --> InventoryPage & CartPage & CheckoutStepOnePage & CheckoutStepTwoPage & CheckoutCompletePage
+    Base --> LoginPage
+    BaseViewPage -.->|composes| Header["Header\n(component)"]
   end
 
   subgraph StepsLayer["src/steps/"]
-    BaseSteps --> LoginSteps & DriversSteps
-    LoginSteps & DriversSteps -->|applyMixins| Steps
+    BaseSteps --> LoginSteps & InventorySteps & CartSteps & CheckoutSteps
+    LoginSteps & InventorySteps & CartSteps & CheckoutSteps -->|applyMixins| Steps
   end
 
   subgraph Helpers["src/helpers/"]
-    API["api/\nAPI · APIEndpoints · APIRegexes"]
     Users["users/\nUserBuilder · User"]
     NM["network-monitor/\nNetworkMonitor"]
     Utils["utils.ts\nstep · goto · getBaseURL"]
@@ -93,7 +90,9 @@ graph TD
 
 ### Page Object Hierarchy
 
-`Base` holds `page` and `root` (a `Page` or `Locator`), and exposes `getByTestId`, `getByRole`, `locator`, and `waitForResponse`. Components extend `Base` and override `root` to scope all their locators to a container element — no leaking selectors.
+`Base` holds `page` and `root` (a `Page` or `Locator`), and exposes `getByTestId`, `getByRole`, `locator`, and `waitForResponse`. Components extend `Base` and override `root` to scope all their locators to a container element — no leaking selectors. `LoginPage` (the pre-auth page) extends `Base` directly; every authenticated view extends `BaseViewPage`, which composes a `Header` component (burger menu, nav links, cart icon/badge) shared across all logged-in pages.
+
+SauceDemo tags elements with `data-test` (not `data-testid`), so `playwright.config.ts` sets `use.testIdAttribute: 'data-test'` — `getByTestId` resolves against that attribute everywhere in the suite.
 
 ### Steps
 
@@ -101,8 +100,10 @@ graph TD
 
 | Class | Methods |
 |---|---|
-| `LoginSteps` | `checkLoginPage` |
-| `DriversSteps` | `openDriversPage`, `checkTableIsFilledWithData` |
+| `LoginSteps` | `checkLoginPage`, `attemptLogin`, `checkLoginError` |
+| `InventorySteps` | `openInventoryPage`, `addItemToCart`, `removeItemFromCart`, `checkCartBadgeCount`, `sortProductsBy` |
+| `CartSteps` | `openCartPage`, `checkCartContainsItems`, `removeItemFromCartPage`, `proceedToCheckout` |
+| `CheckoutSteps` | `fillCheckoutInfo`, `continueToOverview`, `attemptContinueToOverview`, `checkCheckoutInfoError`, `checkOrderTotal`, `finishCheckout`, `checkOrderComplete` |
 
 Steps are injected via the `steps` fixture and are the primary orchestration API in tests.
 
@@ -112,9 +113,8 @@ All test files import from `src/fixtures` — never directly from `@playwright/t
 
 | Fixture | Type | Description |
 |---|---|---|
-| `app` | manual | Page object container (`loginPage`, `driversPage`, `notification`) |
+| `app` | manual | Page object container (`loginPage`, `inventoryPage`, `cartPage`, `checkoutStepOnePage`, `checkoutStepTwoPage`, `checkoutCompletePage`, `notification`) |
 | `steps` | manual | Composed `Steps` instance |
-| `api` | manual | Raw `API` instance for direct HTTP calls |
 | `login` | auto | Navigates to login and authenticates before each test |
 | `notificationHandler` | auto | Auto-dismisses `[role="alert"]` notifications |
 | `networkMonitor` | auto | Opt-in request recorder (requires `@NETWORK_MONITOR` tag) |
@@ -125,9 +125,9 @@ All test files import from `src/fixtures` — never directly from `@playwright/t
 import { test, expect } from 'src/fixtures';
 
 test.describe(() => {
-  test('Drivers table is populated', async ({ app, steps }) => {
-    await steps.openDriversPage();
-    await steps.checkTableIsFilledWithData();
+  test('Adding an item to the cart updates the cart badge', async ({ app, steps }) => {
+    await steps.addItemToCart('Sauce Labs Backpack');
+    await steps.checkCartBadgeCount(1);
   });
 });
 ```
@@ -158,10 +158,10 @@ Tag a test with `@NETWORK_MONITOR` and run with `NETWORK_MONITOR=true` to record
 ### User Builder
 
 ```typescript
-const user = new UserBuilder('Test', 'test@gmail.com').validate().build();
+const user = new UserBuilder('Standard', 'standard_user').validate().build();
 ```
 
-`validate()` asserts that the required env var exists before the test starts. `build()` returns the plain `User` object.
+`validate()` asserts that the shared `USERS_PASSWORD` env var exists before the test starts. `build()` returns the plain `User` object. SauceDemo publishes several fixed accounts (`standard_user`, `locked_out_user`, `problem_user`, `performance_glitch_user`, `error_user`, `visual_user`) that all share one password — `users.ts` builds each of them.
 
 ---
 
