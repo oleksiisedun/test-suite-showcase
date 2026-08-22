@@ -47,7 +47,7 @@ Base (src/pages/base.ts)
 
 `Base` holds `page: Page` and `root: Page | Locator`, and exposes `getByTestId`, `getByRole`, `locator`. Components extend `Base` and override `root` to scope their locators to a container element. `Base` also exposes `waitForResponse()` decorated with `@step` for intercepting API calls. `LoginPage` extends `Base` directly (no header chrome before login); every authenticated page extends `BaseViewPage`, which composes a `Header` component (burger menu, nav links, cart icon/badge).
 
-SauceDemo tags elements with `data-test`, not `data-testid` — `playwright.config.ts` sets `use.testIdAttribute: 'data-test'` so `getByTestId` resolves correctly everywhere.
+SauceDemo tags elements with `data-test`, not `data-testid` — `playwright.config.ts` sets `use.testIdAttribute: 'data-test'` so `getByTestId` resolves correctly everywhere. Any element automation has to locate without one belongs in [docs/missing-data-testids.md](docs/missing-data-testids.md).
 
 ### Steps
 
