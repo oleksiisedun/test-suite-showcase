@@ -5,7 +5,7 @@ export type RequestData = {
   pathname: string;
   href: string;
   type: string;
-  status: number;
+  status: number | null;
   time: Omit<ReturnType<Request['timing']>, 'startTime'> & { startTime: number | Date };
   size?: Awaited<ReturnType<Request['sizes']>>;
   errorMessage?: string;
