@@ -49,6 +49,8 @@ Base (src/pages/base.ts)
 
 SauceDemo tags elements with `data-test`, not `data-testid` — `playwright.config.ts` sets `use.testIdAttribute: 'data-test'` so `getByTestId` resolves correctly everywhere. Any element automation has to locate without one belongs in [docs/missing-data-testids.md](docs/missing-data-testids.md).
 
+Every navigable page object implements `Navigatable` (`src/pages/pages.types.ts`): `page`, `url(urlParams?)`, `waitForLoadState()`. Navigate to one with `goto(pageObject, urlParams?)` (`src/helpers/utils`) rather than `page.goto('/some/path')` — it resolves the URL off the page object's own `url()` method, so route params stay typed to that page instead of a raw string.
+
 ### Steps
 
 `Steps` (src/steps/index.ts) is assembled via `applyMixins` from separate step classes:
