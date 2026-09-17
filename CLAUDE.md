@@ -93,7 +93,8 @@ Types are defined in `src/fixtures/fixtures.types.ts` (`TestOptions`, `TestFixtu
 - `app.ts` — `App` container (page object wrapper)
 - `utils.ts` — `step` decorator, `applyMixins`, `goto`, `getBaseURL`, `getNumber`, and other shared helpers
 - `validate-env.ts` — `validateEnvVars()`, fail-fast check for required `.env` vars, called from `global-setup.ts`
-- `global-setup.ts` / `global-teardown.ts` — wired into `playwright.config.ts`; setup validates env vars once before the run, teardown is currently a no-op (SauceDemo has no server-side test data to clean up)
+- `check-site-reachable.ts` — `checkSiteReachable()`, fail-fast check that the app under test responds, called from `global-setup.ts`
+- `global-setup.ts` / `global-teardown.ts` — wired into `playwright.config.ts`; setup validates env vars and site reachability once before the run, teardown is currently a no-op (SauceDemo has no server-side test data to clean up)
 - `api/` — `API` class wrapping Playwright's `APIRequestContext` plus an `APIEndpoints` name→URL map; unused scaffolding (no fixture wires it up) showing the pattern for a project with a real backend to call directly
 
 ### User builder
