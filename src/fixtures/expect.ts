@@ -1,7 +1,9 @@
 import { expect as baseExpect } from '@playwright/test';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- Playwright's own documented pattern for declaring a custom matcher's type
   namespace PlaywrightTest {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Matchers<R, T> requires both type params even though this matcher only extends R
     interface Matchers<R, T> {
       toBeWithTolerance(expected: number, options?: { tolerance: number }): R;
     }

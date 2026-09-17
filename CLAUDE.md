@@ -33,6 +33,16 @@ npx playwright test --project 'Desktop Chrome, standard user'
 
 Local retries default to `0`; override with `RETRIES=n npm test` (`playwright.config.ts` reads `process.env.RETRIES`, ignored on CI where it's hardcoded to `2`). Local worker count defaults to Playwright's own auto-detection; override with `WORKERS=n npm test`, ignored on CI where it's hardcoded to `1`.
 
+## Type-checking and linting
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run lint         # eslint .
+npm run lint:fix     # eslint . --fix
+```
+
+ESLint config is `eslint.config.mjs` (flat config): `typescript-eslint` recommended + `eslint-plugin-playwright` recommended, applied across `src/**`, `tests/**`, and `playwright.config.ts`. `playwright/expect-expect` is off — assertions routinely live inside `steps.*`/page-object methods rather than the test body (see "Writing tests" below), which the rule can't see into. `playwright/no-standalone-expect` is off for `src/**` only, for the same reason. `@typescript-eslint/no-unsafe-declaration-merging` is off for `src/steps/index.ts` — that's the deliberate `applyMixins` TS mixin pattern (class + interface declaration merging), not an accident. `@typescript-eslint/no-unused-vars` treats `_`-prefixed names as intentionally unused.
+
 ## Architecture
 
 ### Page object hierarchy

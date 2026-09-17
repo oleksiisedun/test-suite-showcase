@@ -20,6 +20,7 @@ export const generateRandomNumericString = (length = 16) =>
 /** Copies all prototype methods from each base constructor onto the derived
  * constructor — the standard TS mixin recipe. Used to assemble `Steps` from
  * its constituent classes in `src/steps/index.ts`. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- reflective mixin helper, constructors are untyped by design
 export function applyMixins(derivedCtor: any, constructors: any[]) {
   constructors.forEach((baseCtor) => {
     Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
@@ -42,6 +43,7 @@ export function step<This, Args extends unknown[], Return>(title?: string) {
     context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
   ) {
     return function replacementMethod(this: This, ...args: Args): Promise<Awaited<Return>> {
+      // eslint-disable-next-line playwright/missing-playwright-await -- the promise is returned directly (not awaited) to preserve the caller's own stack; the `as` cast confuses the rule's return-detection
       return test.step(title ?? context.name as string, () => target.call(this, ...args)) as Promise<Awaited<Return>>;
     };
   };
@@ -67,6 +69,7 @@ export const getNumber = (str: string) => parseFloat(str.replace(/,/g, '').match
 export const isInViewport = async (
   locator: Locator,
   options: { ratio?: number; timeout?: number } = { timeout: 1_000 }
+  // eslint-disable-next-line playwright/no-conditional-expect -- deliberately converts the assertion into a non-throwing boolean probe, per the JSDoc above
 ) => expect(locator).toBeInViewport(options).then(() => true).catch(() => false);
 
 /** Non-throwing boolean wrapper around `locator.waitFor()`,
