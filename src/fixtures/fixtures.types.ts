@@ -4,7 +4,7 @@ import { users } from 'src/helpers/users';
 
 export type TestOptions = {
   user: keyof typeof users;
-}
+};
 
 export type TestFixtures = {
   app: App;
@@ -13,4 +13,4 @@ export type TestFixtures = {
   networkMonitor: void;
   /** Auto fixture. Waits for the alert notification to be hidden whenever it appears. */
   notificationHandler: void;
-}
+};

@@ -7,13 +7,16 @@ import { TestOptions } from './fixtures.types';
 
 type LoginFixture = {
   login: void;
-}
+};
 
 export const test = base.extend<LoginFixture & TestOptions>({
   user: ['standardUser', { option: true }],
-  login: [async ({ app, user }, use) => {
-    await goto(app.loginPage);
-    await app.loginPage.login(users[user]);
-    await use();
-  }, { auto: true }]
+  login: [
+    async ({ app, user }, use) => {
+      await goto(app.loginPage);
+      await app.loginPage.login(users[user]);
+      await use();
+    },
+    { auto: true },
+  ],
 });

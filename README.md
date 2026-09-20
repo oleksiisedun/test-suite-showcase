@@ -40,6 +40,11 @@ npm run test:ui
 # Open last HTML report
 npm run report
 
+# Type-check, lint, and check formatting
+npm run typecheck
+npm run lint
+npm run format:check   # `npm run format` to fix
+
 # Run a single spec file
 npx playwright test tests/checkout.spec.ts
 
@@ -180,3 +185,4 @@ const user = new UserBuilder('Standard', 'standard_user').validate().build();
 | Imports | Always use the `src/*` path alias — no `../../` traversals |
 | Step reuse | Actions used more than once belong in a step class with `@step()` |
 | `test.only` | Forbidden — `forbidOnly: true` is enforced in CI |
+| Formatting | Prettier (`npm run format`) — single quotes, 120 columns |

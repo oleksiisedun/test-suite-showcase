@@ -17,9 +17,6 @@ export class LoginPage extends Base implements Navigatable {
   async login(user: User) {
     await this.usernameField.fill(user.username);
     await this.passwordField.fill(user.password);
-    await Promise.all([
-      this.page.waitForURL('**/inventory.html'),
-      this.loginButton.click()
-    ]);
+    await Promise.all([this.page.waitForURL('**/inventory.html'), this.loginButton.click()]);
   }
 }

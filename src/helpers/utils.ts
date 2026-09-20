@@ -22,13 +22,12 @@ export const generateRandomNumericString = (length = 16) =>
  * its constituent classes in `src/steps/index.ts`. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- reflective mixin helper, constructors are untyped by design
 export function applyMixins(derivedCtor: any, constructors: any[]) {
-  constructors.forEach((baseCtor) => {
-    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+  constructors.forEach(baseCtor => {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
       Object.defineProperty(
         derivedCtor.prototype,
         name,
-        Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
-          Object.create(null)
+        Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null)
       );
     });
   });
@@ -38,13 +37,13 @@ export function applyMixins(derivedCtor: any, constructors: any[]) {
  * own named entry in the Playwright trace and report. `title` defaults to the
  * method name when omitted. */
 export function step<This, Args extends unknown[], Return>(title?: string) {
-  return function(
+  return function (
     target: (this: This, ...args: Args) => Return,
     context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
   ) {
     return function replacementMethod(this: This, ...args: Args): Promise<Awaited<Return>> {
       // eslint-disable-next-line playwright/missing-playwright-await -- the promise is returned directly (not awaited) to preserve the caller's own stack; the `as` cast confuses the rule's return-detection
-      return test.step(title ?? context.name as string, () => target.call(this, ...args)) as Promise<Awaited<Return>>;
+      return test.step(title ?? (context.name as string), () => target.call(this, ...args)) as Promise<Awaited<Return>>;
     };
   };
 }
@@ -63,21 +62,27 @@ export function getBaseURL(options = { api: false }) {
  * thousands-separator commas (e.g. `"1,234.56 pts"` → `1234.56`). */
 export const getNumber = (str: string) => parseFloat(str.replace(/,/g, '').match(/[\d.]+/)![0]);
 
+/* eslint-disable playwright/no-conditional-expect -- deliberately converts the assertion into a non-throwing boolean probe, per the JSDoc below */
 /** Non-throwing boolean wrapper around `expect(locator).toBeInViewport()`,
  * suited for branching on element position without asserting it. The short
  * default timeout avoids long waits in polling-style checks. */
 export const isInViewport = async (
   locator: Locator,
   options: { ratio?: number; timeout?: number } = { timeout: 1_000 }
-  // eslint-disable-next-line playwright/no-conditional-expect -- deliberately converts the assertion into a non-throwing boolean probe, per the JSDoc above
-) => expect(locator).toBeInViewport(options).then(() => true).catch(() => false);
+) =>
+  expect(locator)
+    .toBeInViewport(options)
+    .then(() => true)
+    .catch(() => false);
+/* eslint-enable playwright/no-conditional-expect */
 
 /** Non-throwing boolean wrapper around `locator.waitFor()`,
  * for branching on element state instead of asserting it. */
-export const isVisible = async (
-  locator: Locator,
-  options: Parameters<Locator['waitFor']>[0] = { timeout: 1_000 }
-) => locator.waitFor(options).then(() => true).catch(() => false);
+export const isVisible = async (locator: Locator, options: Parameters<Locator['waitFor']>[0] = { timeout: 1_000 }) =>
+  locator
+    .waitFor(options)
+    .then(() => true)
+    .catch(() => false);
 
 /** Asserts (via `expect`) that `arrLength >= amount` — call sites must guarantee there are
  * enough elements; this is not a no-op when the condition fails. */
@@ -133,5 +138,5 @@ export function getRandomItems<T>(array: T[], amount = 1) {
 export function retryer(amount: number) {
   let count = amount;
 
-  return () => count > 0 ? count-- : 0;
+  return () => (count > 0 ? count-- : 0);
 }

@@ -11,21 +11,27 @@ export const test = base.extend<TestFixtures>({
 
   steps: async ({ app }, use, testInfo) => await use(new Steps(app, testInfo)),
 
-  networkMonitor: [async ({ page }, use, testInfo) => {
-    if (NetworkMonitor.isEnabled(testInfo)) {
-      const monitor = new NetworkMonitor(page, testInfo);
-      await monitor.start();
-      await use();
-      await monitor.stop();
-      monitor.processRequests();
-      monitor.exportReport();
-    } else await use();
-  }, { auto: true }],
+  networkMonitor: [
+    async ({ page }, use, testInfo) => {
+      if (NetworkMonitor.isEnabled(testInfo)) {
+        const monitor = new NetworkMonitor(page, testInfo);
+        await monitor.start();
+        await use();
+        await monitor.stop();
+        monitor.processRequests();
+        monitor.exportReport();
+      } else await use();
+    },
+    { auto: true },
+  ],
 
-  notificationHandler: [async ({ app, page }, use) => {
-    await page.addLocatorHandler(app.notification, async () => {
-      await app.notification.waitFor({ state: 'hidden' });
-    });
-    await use();
-  }, { auto: true }],
+  notificationHandler: [
+    async ({ app, page }, use) => {
+      await page.addLocatorHandler(app.notification, async () => {
+        await app.notification.waitFor({ state: 'hidden' });
+      });
+      await use();
+    },
+    { auto: true },
+  ],
 });

@@ -10,7 +10,10 @@ export class NetworkMonitor {
   private readonly requests: RequestData[] = [];
   private readonly timestamp: number;
 
-  constructor(readonly page: Page, readonly testInfo: TestInfo) {
+  constructor(
+    readonly page: Page,
+    readonly testInfo: TestInfo
+  ) {
     this.timestamp = Date.now();
   }
 
@@ -47,7 +50,9 @@ export class NetworkMonitor {
         type: request.resourceType(),
         status: await this.getStatus(request),
         time: request.timing(),
-        ...(request.failure() ? { errorMessage: request.failure()!.errorText } : { size: await this.getSizes(request) }),
+        ...(request.failure()
+          ? { errorMessage: request.failure()!.errorText }
+          : { size: await this.getSizes(request) }),
       });
     });
   }
@@ -69,7 +74,10 @@ export class NetworkMonitor {
   /** Writes JSON + CSV files to `./network-report/{tags}/{project}/{timestamp}/`,
    * split into `backend.*` (xhr/fetch/eventsource/websocket) and `assets.*` (everything else). */
   exportReport() {
-    const tags = this.testInfo.tags.filter(tag => !tagRegExp.test(tag)).join('-').replace(/@/g, '');
+    const tags = this.testInfo.tags
+      .filter(tag => !tagRegExp.test(tag))
+      .join('-')
+      .replace(/@/g, '');
     const project = this.testInfo.project.name.replace(/[\s,]+/g, '-').toLowerCase();
     const path = `./network-report/${tags}/${project}/${this.timestamp}`;
     const backendRequests = this.requests.filter(({ type }) => isBackendRequestType(type));

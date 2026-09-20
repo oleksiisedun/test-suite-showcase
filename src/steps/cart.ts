@@ -1,7 +1,7 @@
-import { expect } from "@playwright/test";
-import { goto } from "src/helpers/utils";
-import { BaseSteps } from "./base.steps";
-import { step } from "src/helpers/utils";
+import { expect } from '@playwright/test';
+import { goto } from 'src/helpers/utils';
+import { BaseSteps } from './base.steps';
+import { step } from 'src/helpers/utils';
 
 export class CartSteps extends BaseSteps {
   @step('Open cart page')
@@ -11,7 +11,9 @@ export class CartSteps extends BaseSteps {
 
   @step('Check cart contains items')
   async checkCartContainsItems(names: string[]) {
-    await expect(this.app.cartPage.cartItems, 'Cart should contain the expected number of items').toHaveCount(names.length);
+    await expect(this.app.cartPage.cartItems, 'Cart should contain the expected number of items').toHaveCount(
+      names.length
+    );
 
     for (const name of names) {
       await expect(this.app.cartPage.getCartItem(name)).toBeVisible();

@@ -1,7 +1,7 @@
-import { expect } from "@playwright/test";
-import { goto } from "src/helpers/utils";
-import { BaseSteps } from "./base.steps";
-import { step } from "src/helpers/utils";
+import { expect } from '@playwright/test';
+import { goto } from 'src/helpers/utils';
+import { BaseSteps } from './base.steps';
+import { step } from 'src/helpers/utils';
 
 type SortOption = 'az' | 'za' | 'lohi' | 'hilo';
 
