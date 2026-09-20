@@ -113,7 +113,7 @@ SauceDemo tags elements with `data-test` (not `data-testid`), so `playwright.con
 | `CartSteps` | `openCartPage`, `checkCartContainsItems`, `removeItemFromCartPage`, `proceedToCheckout` |
 | `CheckoutSteps` | `fillCheckoutInfo`, `continueToOverview`, `attemptContinueToOverview`, `checkCheckoutInfoError`, `checkOrderTotal`, `finishCheckout`, `checkOrderComplete` |
 
-Steps are injected via the `steps` fixture and are the primary orchestration API in tests.
+Steps are injected via the `steps` fixture and are the primary orchestration API in tests. The reasoning behind the mixin approach is recorded in [docs/decisions/0001-steps-via-mixins.md](docs/decisions/0001-steps-via-mixins.md).
 
 ### Fixtures
 

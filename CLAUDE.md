@@ -73,6 +73,8 @@ Every navigable page object implements `Navigatable` (`src/pages/pages.types.ts`
 - `CartSteps` — `openCartPage`, `checkCartContainsItems`, `removeItemFromCartPage`, `proceedToCheckout`
 - `CheckoutSteps` — `fillCheckoutInfo`, `continueToOverview`, `attemptContinueToOverview`, `checkCheckoutInfoError`, `checkOrderTotal`, `finishCheckout`, `checkOrderComplete`
 
+Why `Steps` is built with mixins (and why `src/steps/` imports `expect` from `@playwright/test`): [docs/decisions/0001-steps-via-mixins.md](docs/decisions/0001-steps-via-mixins.md).
+
 Steps are injected via the `steps` fixture and are the primary API for orchestrating test flows.
 
 All classes extend `BaseSteps` (src/steps/base.steps.ts), which provides shared access to `app` and `testInfo`.
