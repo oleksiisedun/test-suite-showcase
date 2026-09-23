@@ -7,7 +7,7 @@ export class InventoryPage extends BaseViewPage {
   readonly itemPrices = this.getByTestId('inventory-item-price');
 
   getItem(name: string) {
-    return this.items.filter({ has: this.getByTestId('inventory-item-name').getByText(name, { exact: true }) });
+    return this.getItemByName(this.items, name);
   }
 
   getAddToCartButton(name: string) {
@@ -15,6 +15,6 @@ export class InventoryPage extends BaseViewPage {
   }
 
   getRemoveButton(name: string) {
-    return this.getItem(name).getByRole('button', { name: 'Remove' });
+    return this.getRemoveButtonFor(this.items, name);
   }
 }

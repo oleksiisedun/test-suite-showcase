@@ -90,7 +90,7 @@ graph TD
   subgraph Helpers["src/helpers/"]
     Users["users/\nUserBuilder · User"]
     NM["network-monitor/\nNetworkMonitor"]
-    Utils["utils.ts\nstep · goto · getBaseURL"]
+    Utils["utils.ts\nstep · goto · openPage\nclickAndWaitForURL · getBaseURL"]
     GlobalHooks["global-setup.ts · global-teardown.ts\n(wired via playwright.config)"]
     Api["api/\nAPI (unused scaffold)"]
   end

@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { goto } from 'src/helpers/utils';
+import { openPage } from 'src/helpers/utils';
 import { BaseSteps } from './base.steps';
 import { step } from 'src/helpers/utils';
 
@@ -8,7 +8,7 @@ type SortOption = 'az' | 'za' | 'lohi' | 'hilo';
 export class InventorySteps extends BaseSteps {
   @step('Open inventory page')
   async openInventoryPage() {
-    await Promise.all([this.app.inventoryPage.waitForLoadState(), goto(this.app.inventoryPage)]);
+    await openPage(this.app.inventoryPage);
   }
 
   @step('Add item to cart')

@@ -12,6 +12,18 @@ export async function goto<T extends Navigatable>(
   return pageObject.page.goto(pageObject.url(urlParams), options);
 }
 
+/** Navigates to a page object and waits for it to finish loading, racing the two so the
+ * wait is already listening before navigation settles. */
+export async function openPage<T extends Navigatable>(pageObject: T, urlParams?: Parameters<T['url']>[0]) {
+  await Promise.all([pageObject.waitForLoadState(), goto(pageObject, urlParams)]);
+}
+
+/** Clicks `locator` and waits for the resulting navigation to `url`, racing the two so the
+ * wait is already listening before the click fires. */
+export async function clickAndWaitForURL(locator: Locator, url: string) {
+  await Promise.all([locator.page().waitForURL(url), locator.click()]);
+}
+
 /** Generates a numeric string of the given length where the first digit is
  * always 1–9 (no leading zero). */
 export const generateRandomNumericString = (length = 16) =>

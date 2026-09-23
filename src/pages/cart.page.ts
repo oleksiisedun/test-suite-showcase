@@ -7,10 +7,10 @@ export class CartPage extends BaseViewPage {
   readonly checkoutButton = this.getByTestId('checkout');
 
   getCartItem(name: string) {
-    return this.cartItems.filter({ has: this.getByTestId('inventory-item-name').getByText(name, { exact: true }) });
+    return this.getItemByName(this.cartItems, name);
   }
 
   getRemoveButton(name: string) {
-    return this.getCartItem(name).getByRole('button', { name: 'Remove' });
+    return this.getRemoveButtonFor(this.cartItems, name);
   }
 }

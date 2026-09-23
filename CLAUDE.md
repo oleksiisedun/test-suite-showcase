@@ -59,11 +59,11 @@ Base (src/pages/base.ts)
             └── Components (header, etc.)
 ```
 
-`Base` holds `page: Page` and `root: Page | Locator`, and exposes `getByTestId`, `getByRole`, `locator`. Components extend `Base` and override `root` to scope their locators to a container element. `Base` also exposes `waitForResponse()` decorated with `@step` for intercepting API calls. `LoginPage` extends `Base` directly (no header chrome before login); every authenticated page extends `BaseViewPage`, which composes a `Header` component (burger menu, nav links, cart icon/badge).
+`Base` holds `page: Page` and `root: Page | Locator`, and exposes `getByTestId`, `getByRole`, `locator`. Components extend `Base` and override `root` to scope their locators to a container element. `Base` also exposes `waitForResponse()` decorated with `@step` for intercepting API calls. `LoginPage` extends `Base` directly (no header chrome before login); every authenticated page extends `BaseViewPage`, which composes a `Header` component (burger menu, nav links, cart icon/badge) and exposes protected `getItemByName(items, name)` / `getRemoveButtonFor(items, name)` helpers, shared by `InventoryPage` and `CartPage` since both list `inventory-item` rows.
 
 SauceDemo tags elements with `data-test`, not `data-testid` — `playwright.config.ts` sets `use.testIdAttribute: 'data-test'` so `getByTestId` resolves correctly everywhere. Any element automation has to locate without one belongs in [docs/missing-data-testids.md](docs/missing-data-testids.md).
 
-Every navigable page object implements `Navigatable` (`src/pages/pages.types.ts`): `page`, `url(urlParams?)`, `waitForLoadState()`. Navigate to one with `goto(pageObject, urlParams?)` (`src/helpers/utils`) rather than `page.goto('/some/path')` — it resolves the URL off the page object's own `url()` method, so route params stay typed to that page instead of a raw string.
+Every navigable page object implements `Navigatable` (`src/pages/pages.types.ts`): `page`, `url(urlParams?)`, `waitForLoadState()`. Navigate to one with `goto(pageObject, urlParams?)` (`src/helpers/utils`) rather than `page.goto('/some/path')` — it resolves the URL off the page object's own `url()` method, so route params stay typed to that page instead of a raw string. `openPage(pageObject, urlParams?)` combines `goto` with waiting on `pageObject.waitForLoadState()`; `clickAndWaitForURL(locator, url)` combines a click with `locator.page().waitForURL(url)`. Steps use these instead of hand-rolled `Promise.all([...])` pairs.
 
 ### Steps
 
@@ -97,7 +97,7 @@ Types are defined in `src/fixtures/fixtures.types.ts` (`TestOptions`, `TestFixtu
 - `users/` — `UserBuilder` and `users` constant, `User` type
 - `network-monitor/` — `NetworkMonitor`, backs the `networkMonitor` fixture (`@NETWORK_MONITOR` tag)
 - `app.ts` — `App` container (page object wrapper)
-- `utils.ts` — `step` decorator, `applyMixins`, `goto`, `getBaseURL`, `getNumber`, and other shared helpers
+- `utils.ts` — `step` decorator, `applyMixins`, `goto`, `openPage`, `clickAndWaitForURL`, `getBaseURL`, `getNumber`, and other shared helpers
 - `validate-env.ts` — `validateEnvVars()`, fail-fast check for required `.env` vars, called from `global-setup.ts`
 - `check-site-reachable.ts` — `checkSiteReachable()`, fail-fast check that the app under test responds, called from `global-setup.ts`
 - `global-setup.ts` / `global-teardown.ts` — wired into `playwright.config.ts`; setup validates env vars and site reachability once before the run, teardown is currently a no-op (SauceDemo has no server-side test data to clean up)

@@ -1,12 +1,12 @@
 import { expect } from '@playwright/test';
-import { goto } from 'src/helpers/utils';
+import { clickAndWaitForURL, openPage } from 'src/helpers/utils';
 import { BaseSteps } from './base.steps';
 import { step } from 'src/helpers/utils';
 
 export class CartSteps extends BaseSteps {
   @step('Open cart page')
   async openCartPage() {
-    await Promise.all([this.app.cartPage.waitForLoadState(), goto(this.app.cartPage)]);
+    await openPage(this.app.cartPage);
   }
 
   @step('Check cart contains items')
@@ -27,9 +27,6 @@ export class CartSteps extends BaseSteps {
 
   @step('Proceed to checkout')
   async proceedToCheckout() {
-    await Promise.all([
-      this.app.cartPage.page.waitForURL('**/checkout-step-one.html'),
-      this.app.cartPage.checkoutButton.click(),
-    ]);
+    await clickAndWaitForURL(this.app.cartPage.checkoutButton, '**/checkout-step-one.html');
   }
 }

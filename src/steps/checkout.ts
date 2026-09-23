@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { getNumber } from 'src/helpers/utils';
+import { clickAndWaitForURL, getNumber } from 'src/helpers/utils';
 import { BaseSteps } from './base.steps';
 import { step } from 'src/helpers/utils';
 
@@ -24,10 +24,7 @@ export class CheckoutSteps extends BaseSteps {
 
   @step('Continue to checkout overview')
   async continueToOverview() {
-    await Promise.all([
-      this.app.checkoutStepOnePage.page.waitForURL('**/checkout-step-two.html'),
-      this.app.checkoutStepOnePage.continueButton.click(),
-    ]);
+    await clickAndWaitForURL(this.app.checkoutStepOnePage.continueButton, '**/checkout-step-two.html');
   }
 
   @step('Check checkout info error message')
@@ -46,10 +43,7 @@ export class CheckoutSteps extends BaseSteps {
 
   @step('Finish checkout')
   async finishCheckout() {
-    await Promise.all([
-      this.app.checkoutStepTwoPage.page.waitForURL('**/checkout-complete.html'),
-      this.app.checkoutStepTwoPage.finishButton.click(),
-    ]);
+    await clickAndWaitForURL(this.app.checkoutStepTwoPage.finishButton, '**/checkout-complete.html');
   }
 
   @step('Check order complete')
