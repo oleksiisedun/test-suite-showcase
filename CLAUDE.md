@@ -41,6 +41,7 @@ npm run lint            # eslint .
 npm run lint:fix        # eslint . --fix
 npm run format          # prettier --write .
 npm run format:check    # prettier --check . (fails if any file is unformatted)
+npm run check            # typecheck + lint + format:check, in one command
 ```
 
 Prettier config is `.prettierrc.json` (single quotes, 120 columns, `arrowParens: avoid`, `trailingComma: es5`); `.prettierignore` skips Markdown, `.claude/`, lockfile and generated reports. Run `npm run format` after editing code. If Prettier reflows a line that carries an `eslint-disable-next-line` comment, re-run `npm run lint` — a multi-line expression can leave the directive pointing at the wrong line.

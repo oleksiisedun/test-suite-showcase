@@ -40,7 +40,7 @@ npm run test:ui
 # Open last HTML report
 npm run report
 
-# Type-check, lint, and check formatting
+# Type-check, lint, and check formatting (or `npm run check` to run all three)
 npm run typecheck
 npm run lint
 npm run format:check   # `npm run format` to fix
