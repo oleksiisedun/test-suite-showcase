@@ -42,11 +42,14 @@ npm run lint:fix        # eslint . --fix
 npm run format          # prettier --write .
 npm run format:check    # prettier --check . (fails if any file is unformatted)
 npm run check            # typecheck + lint + format:check, in one command
+npm run deadcode         # knip — unused files, exports and dependencies
 ```
 
 Prettier config is `.prettierrc.json` (single quotes, 120 columns, `arrowParens: avoid`, `trailingComma: es5`); `.prettierignore` skips Markdown, `.claude/`, lockfile and generated reports. Run `npm run format` after editing code. If Prettier reflows a line that carries an `eslint-disable-next-line` comment, re-run `npm run lint` — a multi-line expression can leave the directive pointing at the wrong line.
 
 ESLint config is `eslint.config.mjs` (flat config): `typescript-eslint` recommended + `eslint-plugin-playwright` recommended, applied across `src/**`, `tests/**`, and `playwright.config.ts`. `playwright/expect-expect` is off — assertions routinely live inside `steps.*`/page-object methods rather than the test body (see "Writing tests" below), which the rule can't see into. `playwright/no-standalone-expect` is off for `src/**` only, for the same reason. `@typescript-eslint/no-unsafe-declaration-merging` is off for `src/steps/index.ts` — that's the deliberate `applyMixins` TS mixin pattern (class + interface declaration merging), not an accident. `@typescript-eslint/no-unused-vars` treats `_`-prefixed names as intentionally unused.
+
+`npm run deadcode` (knip, config in `knip.json`) is not wired into `npm run check` — it currently reports pre-existing unused exports (several `utils.ts` helpers, `UserBuilder`, the `TestFixtures` type) that are kept as showcased reference implementations rather than dead code to delete; triage those before adding it to the blocking aggregate. `knip.json` marks `src/helpers/api/**` as ignored (it's deliberately unused scaffolding, see below) and adds `global-setup.ts`/`global-teardown.ts` as extra entry points since they're only referenced by string from `playwright.config.ts`.
 
 ## Architecture
 

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["tests/**/*.spec.ts", "src/helpers/global-setup.ts", "src/helpers/global-teardown.ts"],
+  "project": ["src/**/*.ts", "tests/**/*.ts"],
+  "ignore": ["src/helpers/api/**"]
+}

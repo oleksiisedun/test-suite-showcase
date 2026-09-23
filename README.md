@@ -45,6 +45,9 @@ npm run typecheck
 npm run lint
 npm run format:check   # `npm run format` to fix
 
+# Find unused files, exports, and dependencies
+npm run deadcode
+
 # Run a single spec file
 npx playwright test tests/checkout.spec.ts
 
